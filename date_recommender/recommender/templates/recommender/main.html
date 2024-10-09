@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>데이트 장소 추천</title>
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>데이트 장소 추천</h1>
+    <select id="region-filter">
+        <option value="">모든 지역</option>
+        <option value="서울">서울</option>
+        <option value="부산">부산</option>
+        <option value="대구">대구</option>
+        <option value="인천">인천</option>
+        <option value="광주">광주</option>
+        <option value="대전">대전</option>
+        <option value="울산">울산</option>
+    </select>
+    <div id="map"></div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+    <script>
+        let map;
+        let markers = [];
+        const regionCoordinates = {
+            '서울': {lat: 37.5665, lng: 126.9780},
+            '부산': {lat: 35.1796, lng: 129.0756},
+            '대구': {lat: 35.8714, lng: 128.6014},
+            '인천': {lat: 37.4563, lng: 126.7052},
+            '광주': {lat: 35.1601, lng: 126.8514},
+            '대전': {lat: 36.3504, lng: 127.3845},
+            '울산': {lat: 35.5384, lng: 129.3114},
+        };
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: regionCoordinates['서울'],
+                zoom: 11
+            });
+            loadPlaces();
+        }
+
+        function loadPlaces(region = '') {
+            fetch(`/get_places/?region=${region}`)
+                .then(response => response.json())
+                .then(data => {
+                    clearMarkers();
+                    data.places.forEach(place => {
+                        const marker = new google.maps.Marker({
+                            position: {lat: place.latitude, lng: place.longitude},
+                            map: map,
+                            title: place.name
+                        });
+
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `<h3>${place.name}</h3>
+                                      <p>카테고리: ${place.category}</p>
+                                      <p>주소: ${place.address}</p>
+                                      <p>${place.description}</p>`
+                        });
+
+                        marker.addListener('click', () => {
+                            infoWindow.open(map, marker);
+                        });
+
+                        markers.push(marker);
+                    });
+                    if (region && regionCoordinates[region]) {
+                        map.setCenter(regionCoordinates[region]);
+                        map.setZoom(11);
+                    } else {
+                        fitMapToMarkers();
+                    }
+                });
+        }
+
+        function clearMarkers() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+        }
+
+        function fitMapToMarkers() {
+            if (markers.length > 0) {
+                const bounds = new google.maps.LatLngBounds();
+                markers.forEach(marker => bounds.extend(marker.getPosition()));
+                map.fitBounds(bounds);
+            }
+        }
+
+        document.getElementById('region-filter').addEventListener('change', function() {
+            loadPlaces(this.value);
+        });
+    </script>
+</body>
+</html>
