@@ -20,7 +20,7 @@ def get_places(request):
     places_data = [{
         'id': place.id,
         'name': place.name,
-        'category': place.category,
+        'category': place.get_category_display(),
         'latitude': place.latitude,
         'longitude': place.longitude,
         'address': place.address,

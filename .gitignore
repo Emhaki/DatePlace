@@ -1,0 +1,68 @@
+# Python
+*.py[cod]
+__pycache__/
+*.so
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media
+
+# 가상 환경
+date_recommender_env/
+venv/
+ENV/
+
+# IDE 관련
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS 관련
+.DS_Store
+Thumbs.db
+
+# 기타
+*.bak
+*.tmp
+*.temp
+
+# 보안 관련
+*.env
+*.pem
+*.key
+
+# 의존성 관련
+pip-log.txt
+pip-delete-this-directory.txt
+
+# 테스트 관련
+.coverage
+.tox/
+.pytest_cache/
+
+# 배포 관련
+*.pyc
+*.pyo
+*.mo
+*.pot
+
+# 데이터베이스 백업
+*.sql
+*.sqlite
+
+# 로그 파일
+logs/
+*.log
+
+# 캐시 파일
+.cache/
+
+# 정적 파일 수집 디렉토리
+/static/
+
+# 미디어 파일
+/media/
