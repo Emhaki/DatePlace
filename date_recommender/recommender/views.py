@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from .models import DatePlace
 from django.http import JsonResponse
+from .forms import DatePlaceForm
+from django.contrib import messages
 
 def main_view(request):
     places = DatePlace.objects.all()
@@ -28,3 +31,16 @@ def get_places(request):
     } for place in places]
     
     return JsonResponse({'places': places_data})
+
+@login_required
+def add_date_place(request):
+    if request.method == 'POST':
+        form = DatePlaceForm(request.POST)
+        if form.is_valid():
+            date_place = form.save(commit=False)
+            date_place.save()
+            messages.success(request, '새로운 데이트 장소가 추가되었습니다!')
+            return redirect('main')
+    else:
+        form = DatePlaceForm()
+    return render(request, 'recommender/add_date_place.html', {'form': form})
