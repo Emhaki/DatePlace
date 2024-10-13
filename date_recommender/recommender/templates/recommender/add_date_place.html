@@ -1,24 +1,124 @@
 {% extends 'base.html' %}
 
+{% block extra_head %}
+<style>
+    #map {
+        height: 300px;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .form-container {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <h2>새로운 데이트 장소 추가</h2>
-    <form method="post">
-        {% csrf_token %}
-        {% for field in form %}
-            <div class="mb-3">
-                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}
-                    <small class="form-text text-muted">{{ field.help_text }}</small>
-                {% endif %}
-                {% for error in field.errors %}
-                    <p class="text-danger">{{ error }}</p>
-                {% endfor %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="form-container">
+                <h2 class="mb-4 text-center">새로운 데이트 장소 추가</h2>
+                <form method="post" id="date-place-form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">장소 이름</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">카테고리</label>
+                            {{ form.category }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.address.id_for_label }}" class="form-label">주소</label>
+                        {{ form.address }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">설명</label>
+                        {{ form.description }}
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.rating.id_for_label }}" class="form-label">평점</label>
+                            {{ form.rating }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.region.id_for_label }}" class="form-label">지역</label>
+                            {{ form.region }}
+                        </div>
+                    </div>
+                    <div id="map"></div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.latitude.id_for_label }}" class="form-label">위도</label>
+                            {{ form.latitude }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.longitude.id_for_label }}" class="form-label">경도</label>
+                            {{ form.longitude }}
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">추가하기</button>
+                    </div>
+                </form>
             </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary">추가하기</button>
-    </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
+{% block extra_scripts %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+<script>
+    let map;
+    let marker;
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: {lat: 37.5665, lng: 126.9780},
+            zoom: 11
+        });
+
+        map.addListener('click', function(e) {
+            placeMarker(e.latLng);
+        });
+    }
+
+    function placeMarker(location) {
+        if (marker) {
+            marker.setPosition(location);
+        } else {
+            marker = new google.maps.Marker({
+                position: location,
+                map: map
+            });
+        }
+
+        document.getElementById('id_latitude').value = location.lat();
+        document.getElementById('id_longitude').value = location.lng();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('date-place-form');
+        const inputs = form.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            input.classList.add('form-control');
+        });
+    });
+</script>
+{% endblock %}
