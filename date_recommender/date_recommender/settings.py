@@ -149,7 +149,7 @@ SOCIALACCOUNT_PROVIDERS = {
     'kakao': {
         'APP': {
             'client_id': '여기에_카카오_앱_키를_입력하세요',
-            'secret': '여기에_카카오_시크릿_키를_입력하세요',
+            'secret': '여기에_카카오_앱_시크릿_키를_입력하세요',
             'key': ''
         }
     }
