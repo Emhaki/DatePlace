@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>데이트 코스 만들기</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <div id="map" style="height: 500px;"></div>
+        </div>
+        <div class="col-md-4">
+            <form id="date-course-form">
+                <div class="mb-3">
+                    <label for="course-name" class="form-label">코스 이름</label>
+                    <input type="text" class="form-control" id="course-name" required>
+                </div>
+                <div id="place-list"></div>
+                <button type="submit" class="btn btn-primary mt-3">저장</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+<script>
+let map;
+let markers = [];
+let placeCounter = 0;
+
+function initMap() {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: {lat: 37.5665, lng: 126.9780},
+        zoom: 12
+    });
+
+    map.addListener('click', function(e) {
+        placeMarker(e.latLng);
+    });
+}
+
+function placeMarker(location) {
+    let marker = new google.maps.Marker({
+        position: location,
+        map: map
+    });
+    markers.push(marker);
+
+    let time = prompt("방문 시간을 입력하세요 (HH:MM 형식):", "12:00");
+    if (time) {
+        placeCounter++;
+        addPlaceToList(location, time);
+    } else {
+        marker.setMap(null);
+        markers.pop();
+    }
+}
+
+function addPlaceToList(location, time) {
+    let placeList = document.getElementById('place-list');
+    let placeItem = document.createElement('div');
+    placeItem.className = 'mb-3';
+    placeItem.innerHTML = `
+        <input type="text" class="form-control mb-2" placeholder="장소 이름" required>
+        <input type="text" class="form-control mb-2" value="${time}" readonly>
+        <input type="hidden" value="${location.lat()},${location.lng()}">
+    `;
+    placeList.appendChild(placeItem);
+}
+
+document.getElementById('date-course-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let courseName = document.getElementById('course-name').value;
+    let places = [];
+    document.querySelectorAll('#place-list > div').forEach(function(placeItem) {
+        let inputs = placeItem.querySelectorAll('input');
+        let [lat, lng] = inputs[2].value.split(',');
+        places.push({
+            name: inputs[0].value,
+            time: inputs[1].value,
+            lat: parseFloat(lat),
+            lng: parseFloat(lng)
+        });
+    });
+
+    fetch('{% url "save_date_course" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            name: courseName,
+            places: places
+        })
+    }).then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('데이트 코스가 저장되었습니다!');
+            window.location.href = '{% url "main" %}';
+        }
+    });
+});
+</script>
+{% endblock %}

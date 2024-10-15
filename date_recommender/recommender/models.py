@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import KakaoUser
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -37,3 +38,19 @@ class Review(models.Model):
     
     def __str__(self):
         return f"{self.user.username}'s review for {self.date_place.name}"
+
+class DateCourse(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class DateCoursePlace(models.Model):
+    date_course = models.ForeignKey(DateCourse, on_delete=models.CASCADE, related_name='places')
+    name = models.CharField(max_length=200)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    visit_time = models.TimeField()
+    order = models.IntegerField()
+
+    class Meta:
+        ordering = ['order']

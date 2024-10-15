@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from .models import DatePlace
+from .models import DatePlace, DateCourse, DateCoursePlace
 from django.http import JsonResponse
 from .forms import DatePlaceForm
 from django.contrib import messages
+from django.views.decorators.http import require_POST
+import json
 
 def main_view(request):
     places = DatePlace.objects.all()
@@ -44,3 +46,25 @@ def add_date_place(request):
     else:
         form = DatePlaceForm()
     return render(request, 'recommender/add_date_place.html', {'form': form})
+
+@login_required
+def create_date_course(request):
+    return render(request, 'recommender/create_date_course.html', {
+        'google_maps_api_key': settings.GOOGLE_MAPS_API_KEY
+    })
+
+@login_required
+@require_POST
+def save_date_course(request):
+    data = json.loads(request.body)
+    course = DateCourse.objects.create(user=request.user, name=data['name'])
+    for i, place in enumerate(data['places']):
+        DateCoursePlace.objects.create(
+            date_course=course,
+            name=place['name'],
+            latitude=place['lat'],
+            longitude=place['lng'],
+            visit_time=place['time'],
+            order=i
+        )
+    return JsonResponse({'status': 'success'})
