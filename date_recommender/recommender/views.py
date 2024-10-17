@@ -65,6 +65,7 @@ def save_date_course(request):
             latitude=place['lat'],
             longitude=place['lng'],
             visit_time=place['time'],
-            order=i
+            order=i,
+            cost=place['cost']
         )
     return JsonResponse({'status': 'success'})

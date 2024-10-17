@@ -51,6 +51,7 @@ class DateCoursePlace(models.Model):
     longitude = models.FloatField()
     visit_time = models.TimeField()
     order = models.IntegerField()
+    cost = models.IntegerField(default=1)
 
     class Meta:
         ordering = ['order']
