@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">마이페이지</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">사용자 정보</h5>
+                    <p><strong>이름:</strong> {{ user.username }}</p>
+                    <p><strong>이메일:</strong> {{ user.email }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <h3>내 데이트 코스</h3>
+            {% if courses %}
+                <div class="list-group">
+                {% for course in courses %}
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ course.name }}</h5>
+                            <small>{{ course.created_at|date:"Y-m-d H:i" }}</small>
+                        </div>
+                        <p class="mb-1">장소 수: {{ course.places.count }}</p>
+                    </a>
+                {% endfor %}
+                </div>
+            {% else %}
+                <p>아직 생성한 데이트 코스가 없습니다.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

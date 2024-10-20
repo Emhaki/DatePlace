@@ -74,10 +74,11 @@ document.getElementById('date-course-form').addEventListener('submit', function(
     let places = [];
     document.querySelectorAll('#place-list > div').forEach(function(placeItem) {
         let inputs = placeItem.querySelectorAll('input');
-        let [lat, lng] = inputs[2].value.split(',');
+        let [lat, lng] = inputs[3].value.split(',');
         places.push({
             name: inputs[0].value,
             time: inputs[1].value,
+            cost: parseInt(inputs[2].value),
             lat: parseFloat(lat),
             lng: parseFloat(lng)
         });

@@ -69,3 +69,12 @@ def save_date_course(request):
             cost=place['cost']
         )
     return JsonResponse({'status': 'success'})
+
+@login_required
+def mypage(request):
+    user_courses = DateCourse.objects.filter(user=request.user).order_by('-created_at')
+    context = {
+        'user': request.user,
+        'courses': user_courses,
+    }
+    return render(request, 'recommender/mypage.html', context)
